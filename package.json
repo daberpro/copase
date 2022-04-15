@@ -1,0 +1,22 @@
+{
+  "name": "copase",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "copase": "./compiler.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "boxen": "^5.1.2",
+    "chalk": "^4.1.1",
+    "css-beauty": "^0.2.0",
+    "html-prettify": "^1.0.6",
+    "js-beautify": "^1.14.3",
+    "parse5": "^6.0.1"
+  }
+}
