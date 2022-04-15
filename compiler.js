@@ -31,12 +31,13 @@ const listCommand = {
 	    console.log('\t--version\t      ' + 'Show version number.' + '\t\t' + '[boolean]\r')  
 	    console.log('\t--help\t\t      ' + 'Show help.' + '\t\t\t' + '[boolean]\n')  
 
-	    console.log("\n" + boxen(chalk.hex('#83aaff').bold("Create By daberdev \n email : daber.coding@gmail.com \n\n"+chalk.yellow("silahkan berkontribusi \nuntuk ikut serta melakukan pengembangan")), {padding: 1, borderColor: 'white', dimBorder: true,borderStyle: "round"}) + "\n");
-	},
+	    console.log("\n" + boxen(chalk.hex('#83aaff').bold("Create By daberdev \n email : daber.coding@gmail.com\ngithub: https://github.com/daberpro \n\n"+chalk.yellow("silahkan berkontribusi \nuntuk ikut serta melakukan pengembangan \ngithub : https://github.com/daberpro/copase")), {padding: 1, borderColor: 'white', dimBorder: true,borderStyle: "round"}) + "\n");
+	    process.exit(1);
+    },
 	"--version"(){
 
 		console.log("\n" + boxen(chalk.hex('#83aaff').bold("Copase version : "+require("./package.json").version), {padding: 1, borderColor: 'white', dimBorder: true,borderStyle: "round"}) + "\n");
-
+        process.exit(1);
 	}
 }
 
