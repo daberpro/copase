@@ -14,7 +14,7 @@ tunggu sebentar apa???
 
 > pasti setiap web developer pernah mengalami lupa dengan sintaks dan source code akibat dari penggunaan framework atau tools yang membantu sehingga tidak jarang terjadi ketergantunga terhadap framework atau tools
 
-nahh jadi itulah alasan di balik bisa copase ini (jujur sebenarnya saya males aja gitu mau belajar tools atau framework yang tujuan nya juga sama buat styling jadi saya memutuskan untuk membuat semacam tools yang terinpirasi dari tailwind css dan native css) hingga terciptalah copase
+nahh jadi itulah alasan di balik bisa terciptanya copase ini (jujur sebenarnya saya males aja gitu mau belajar tools atau framework yang tujuan nya juga sama buat styling jadi saya memutuskan untuk membuat semacam tools yang terinpirasi dari tailwind css dan native css) hingga terciptalah copase
 ### Apa itu copase?
 copase adalah suatu tools yang bertugas untuk mengenerate utility class tanpa memerlukan sintaks css sama sekali anda hanya cukup membuat class di dalam tag html dan kemudian file html yang telah anda buat akan di generate css nya
 ### bagaimana cara copase bekerja?
