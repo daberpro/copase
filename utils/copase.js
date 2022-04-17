@@ -103,11 +103,12 @@ function checkValue(dataSplited){
 
 	// melakukan pembuatan class
 	const result = allRule[dataSplited.child.length-1]?.filter(e => e.css === dataSplited.copyOfPureClass);
+	
 	if(result){
 
 		const uid = uuidv4();
 		let cssTemplate = "";
-		cssTemplate = `
+		if(result.length > 0) cssTemplate = `
 			.${dataSplited.fullClassName.replace(/\[.*?\]/igm,uid).replace(/(^\"|\"$|(\w.*:))/igm,"")}{
 
 				${dataSplited.copyOfPureClass} : ${dataSplited.value.replace(/(\[|\])/igm,"")};

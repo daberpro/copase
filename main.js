@@ -29,9 +29,9 @@ function uuidv4() {
 
 // melakukan set terhadap responsive 
 let mediaQueryTemplate = {
-	"sm": `@media screen and (min-width: 0px) and (max-width: 640px)`,
-	"md": `@media screen and (min-width: 641px) and (max-width: 1007px)`,
-	"lg": `@media screen and (min-width: 1008px)`
+    "sm": `@media screen and (min-width: 0px) and (max-width: 640px)`,
+    "md": `@media screen and (min-width: 641px) and (max-width: 1007px)`,
+    "lg": `@media screen and (min-width: 1008px)`
 };
 
 // mengambil dan mengcopy source code html dan melakukan manipulasi
@@ -42,25 +42,25 @@ function createHTML(Component, arrayResult, src, result) {
         [e.split("=")[0]]: (e.split("=")[1]) ? e.split("=")[1].replace(/(^\{|\}$)/igm, "") : null
     })) || [];
 
-
+    const tagName = src.substring(Component.sourceCodeLocation.startCol, Component.sourceCodeLocation.startCol + Component.tagName.length);
     const utilitesClass = [];
 
     // melakukan pengambilan class
     for (let x of rawAttrs) {
 
-    	const classField = {};
+        const classField = {};
 
-        for (let y of x.class.split(" ")) {
+        if(tagName !== "script") for (let y of (x.class?.replace(/\[.*?\]\s+/igm,"$&=>").split("=>") || [])) {
 
-        	const resultCopase = copase.checkValue(copase.splitValue(y));
+            const resultCopase = copase.checkValue(copase.splitValue(y.replace(/(\n|\r|\t)/igm,"")));
 
             if(!classField.hasOwnProperty(resultCopase.parentName)){
 
-				classField[resultCopase.parentName] = resultCopase.nameAfter;             	
+                classField[resultCopase.parentName] = resultCopase.nameAfter;               
 
             }else{
 
-            	resultCopase.updateTemplate(classField[resultCopase.parentName],resultCopase.value);
+                resultCopase.updateTemplate(classField[resultCopase.parentName],resultCopase.value);
 
             }
 
@@ -86,11 +86,11 @@ function createHTML(Component, arrayResult, src, result) {
 
     if (Component.childNodes.length > 0){
 
-    	for (let x of Component.childNodes) {
+        for (let x of Component.childNodes) {
 
             if (x.nodeName !== "#text"){
 
-            	createHTML(x, arrayResult, src, _result);
+                createHTML(x, arrayResult, src, _result);
 
             }
 
@@ -116,7 +116,7 @@ module.exports.transform = function(_source, isFirst, current) {
     const css = [];
     const finalResult = [];
     const templateBefore = {
-    	source
+        source
     }
   
     for (let x of data) {
@@ -142,9 +142,9 @@ module.exports.transform = function(_source, isFirst, current) {
 
     for (let g of templateCopase.css) {
 
-    	if(g.mediaQuery === "sm") mediaSm.push(g.template);
-    	if(g.mediaQuery === "lg") mediaLg.push(g.template);
-    	if(g.mediaQuery === "md") mediaMd.push(g.template);
+        if(g.mediaQuery === "sm") mediaSm.push(g.template);
+        if(g.mediaQuery === "lg") mediaLg.push(g.template);
+        if(g.mediaQuery === "md") mediaMd.push(g.template);
         if(g.mediaQuery.length === 0) resultCssAndHTML.css += g.template;
 
     }
