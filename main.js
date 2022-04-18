@@ -47,8 +47,7 @@ let mediaQueryTemplate = {
 
 // mengambil dan mengcopy source code html dan melakukan manipulasi
 // yaitu dengan cara mengubah class utilities menjadi class yang telah di generate
-let pureClass = new Map();
-function createHTML(Component, arrayResult, src, result) {
+function createHTML(Component, arrayResult, src, result, pureClass) {
 
     const rawAttrs = src.substring(Component.sourceCodeLocation.startCol - 1, Component.sourceCodeLocation.endCol - 1).match(/<[a-zA-Z]+(>|.*?[^?]>)/)?.[0].replace(/(?<=\<(\w.*))(\}(\s+|\t|\r|\n)\})/igm, "}}").match(/(?<=\<(\w.*))((\$.(\w*))|(\w*((\=(\".*?\"))|(\=(\{.*?(\}{1,}))))))/igm)?.map(e => ({
         [e.split("=")[0]]: (e.split("=")[1]) ? e.split("=")[1].replace(/(^\{|\}$)/igm, "") : null
@@ -62,7 +61,7 @@ function createHTML(Component, arrayResult, src, result) {
 
         const classField = {};
 
-        if(tagName !== "script") for (let y of (x.class?.replace(/\[.*?\]\s+/igm,"$&=>").split("=>") || [])) {
+        if(x.class) for (let y of (x.class?.replace(/\[.*?\]\s+/igm,"$&=>").split("=>") || [])) {
 
             const resultCopase = copase.checkValue(copase.splitValue(y.replace(/(\n|\r|\t)/igm,"")));
 
@@ -87,19 +86,20 @@ function createHTML(Component, arrayResult, src, result) {
 
     for (let x of utilitesClass) {
 
-        if(pureClass.has(x.nameBefore) && x.mediaQuery.length === 0){
+        if(pureClass.has(x.nameBefore.replace(/(\s+)/igm,"")) && x.mediaQuery.length === 0){
 
-            x.nameAfter = pureClass.get(x.nameBefore);
+            x.nameAfter = pureClass.get(x.nameBefore.replace(/(\s+)/igm,""));
 
         }else if(x.mediaQuery.length === 0){
 
-            pureClass.set(x.nameBefore.replace(/(^\s|\s$)/igm,""),x.nameAfter);
+            pureClass.set(x.nameBefore.replace(/(\s+)/igm,""),x.nameAfter);
 
         }
 
-        _result.source = _result.source.replace(x.nameBefore, x.nameAfter);
+        _result.source = _result.source.replace(x.nameBefore, " "+x.nameAfter);
 
     }
+
 
     arrayResult.push({
         result: _result.source,
@@ -112,7 +112,7 @@ function createHTML(Component, arrayResult, src, result) {
 
             if (x.nodeName !== "#text"){
 
-                createHTML(x, arrayResult, src, _result);
+                createHTML(x, arrayResult, src, _result, pureClass);
 
             }
 
@@ -140,10 +140,12 @@ module.exports.transform = async function(_source, isFirst, current) {
     const templateBefore = {
         source
     }
+
+    let pureClass = new Map();
   
     for (let x of data) {
 
-        const a = createHTML(x, finalResult, source, templateBefore);
+        const a = createHTML(x, finalResult, source, templateBefore, pureClass);
         for (let g of a) {
             css.push(...g.utilitesClass);
         }

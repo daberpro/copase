@@ -52,7 +52,7 @@ function splitValue(className){
 
 	// melakukan pengideks-an token 
 	return {
-		parentName: token[0].replace(/(^\"|\"$|(\w.*:))/igm,""),
+		parentName: (className.match(/(\w.*(?=\[))/igm)?.[0] || "").replace(/(^\"|\"$|(\w.*:))/igm,""),
 		fullClassName: token.join("-").replace(/(^\"|\"$)/igm,""),
 		copyOfPureClass: child.map(e =>{
 			if(e.type !== "value"){

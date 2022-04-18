@@ -1,6 +1,6 @@
 {
   "name": "copase",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "<center>\r     <h1 style=\"font-size: xxx-large;\">Copase</h1>\r     <h2>\"simpel but powerfull\"</h2>\r     <p>By Daberdev (fullstack web developer)</p>\r     <img src=\"https://img.shields.io/npm/v/copase.svg\">\r     <img src=\"https://img.shields.io/npm/dm/copase.svg\">\r </center>\r <br>\r kapan terakhir kali anda membuat css tanpa framework? atau kapan terakhir kali anda menggunakan framework css? kapan pun itu pasti anda selalu merasakan pro dan kontra dari pengalaman dalam mengerjakan ke dua nya tapi pernah kah terpikir bagaimana jika utility class seperti tailwind di gabungkan dengan css properti?",
   "main": "index.js",
   "scripts": {
