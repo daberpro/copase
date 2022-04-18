@@ -86,3 +86,6 @@ secara otomatis ketika di ukuran layar yang telah di tentukan color pada h1 akan
     <h1 class="hover:color-[red] color-[blue]">Sentuh saya</h1>
     ```
 2. minifier untuk css
+
+## Update 1.1.1
+### update perbaikan bug untuk nama class

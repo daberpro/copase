@@ -57,7 +57,7 @@ if (fs.existsSync(process.cwd() + "/source")) {
 
         if (/\.html$/igm.test(file)) {
 
-            const copase = await transform(fs.readFileSync(join(process.cwd(), "source", file)).toString());
+            const copase = await transform(fs.readFileSync(join(process.cwd(), "source", file)).toString(),require(join(process.cwd(),"copase.config.js")));
 
             if (fs.existsSync(process.cwd() + "/result")) {
 
