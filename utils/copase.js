@@ -43,7 +43,7 @@ function splitValue(className){
 				name: (/(\w.*:)/igm.test(token[x])) ? token[x].replace(/(^\"|\"$|(\w.*:))/igm,"") : token[x].replace(/(^\"|\"$)/igm,""),
 				position: parseInt(x),
 				type: /\[.*?\]/igm.test(token[x]) ? "value" : "declaration",
-				mediaQuery: (/(\w.*:)/igm.test(token[x])) ? token[x].match(/(\w.*:)/igm)[0].replace(/\:/igm,"") : ""
+				mediaQuery: (/(\w.*:)/igm.test(token[x])) ? token[x].match(/(\w.*:)/igm)[0].replace(/\:$/igm,"") : ""
 			});
 
 		}
@@ -67,7 +67,7 @@ function splitValue(className){
 		}).filter(e => e !== null).join("-"),
 		value: token[token.length-1].replace(/\"/igm,""),
 		child,
-		mediaQuery: (/(\w.*:)/igm.test(token[0])) ? token[0].match(/(\w.*:)/igm)[0].replace(/\:/igm,"") : ""
+		mediaQuery: (/(\w.*:)/igm.test(token[0])) ? token[0].match(/(\w.*:)/igm)[0].replace(/\:$/igm,"") : ""
 	};
 
 }
@@ -127,7 +127,7 @@ function checkValue(dataSplited){
 
 				this.nameAfter = className;
 				this.template = `
-					.${className.replace(/\[.*?\]/igm,uid).replace(/(^\"|\"$|(\w.*:))/igm,"")}{
+					.${className.replace(/\[.*?\]/igm,uid).replace(/(^\"|\"$)/igm,"")}{
 
 						${dataSplited.copyOfPureClass} : ${value.replace(/(\[|\])/igm,"")};
 

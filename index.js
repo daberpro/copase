@@ -24,12 +24,12 @@ module.exports = function(args = {sourceDir : "", outDir : ""}) {
 
     if (fs.existsSync(args.sourceDir)) {
 
-        fs.readdirSync(args.sourceDir).forEach(file => {
+        fs.readdirSync(args.sourceDir).forEach(async file => {
 
             // mengambil setiap file html 
             if (/\.html$/igm.test(file)) {
 
-                const copase = transform(fs.readFileSync(join(args.sourceDir, file)).toString());
+                const copase = await transform(fs.readFileSync(join(args.sourceDir, file)).toString());
                 result[file] = copase;
 
                 if (fs.existsSync(args.outDir)) {

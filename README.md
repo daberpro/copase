@@ -8,6 +8,7 @@
     <img src="https://img.shields.io/npm/dm/copase.svg">
 </center>
 <br>
+
 kapan terakhir kali anda membuat css tanpa framework? atau kapan terakhir kali anda menggunakan framework css? kapan pun itu pasti anda selalu merasakan pro dan kontra dari pengalaman dalam mengerjakan ke dua nya tapi pernah kah terpikir bagaimana jika utility class seperti tailwind di gabungkan dengan css properti?
 
 tunggu sebentar apa???
@@ -71,3 +72,17 @@ secara otomatis ketika di ukuran layar yang telah di tentukan color pada h1 akan
 |  sm  | 0px hingga 640px     |
 |  md  | 641px hingga 1007px  |
 |  lg  | 1008px hingga lebih  |
+
+## Update 1.0.1
+### update perbaikan bug
+
+## Update 1.1.0
+### apa yang baru?
+1. penambahan fitur psuedo class
+    > penambahan fitur psuedo class mirip seperti penggunaan responsive class
+    yaitu sebagai berikut
+
+    ```html
+    <h1 class="hover:color-[red] color-[blue]">Sentuh saya</h1>
+    ```
+2. minifier untuk css

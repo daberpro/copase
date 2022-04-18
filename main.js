@@ -12,13 +12,24 @@ const {
     parse,
     serialize
 } = require('parse5');
-const beautify = require('js-beautify').js;
 const fs = require("fs");
 const crypto = require("crypto");
 const CodecError = require('./utils/error');
 const prettify = require('html-prettify');
 const copase = require("./utils/copase.js");
 const {beauty} = require('css-beauty');
+const postcss = require('postcss');
+const cssnano = require('cssnano');
+const autoprefixer = require('autoprefixer');
+
+
+const minifyCss = async (css) => {
+
+  const output = await postcss([cssnano, autoprefixer])
+    .process(css)
+
+  return output.css;
+}
 
 // uuid v4
 function uuidv4() {
@@ -36,6 +47,7 @@ let mediaQueryTemplate = {
 
 // mengambil dan mengcopy source code html dan melakukan manipulasi
 // yaitu dengan cara mengubah class utilities menjadi class yang telah di generate
+let pureClass = new Map();
 function createHTML(Component, arrayResult, src, result) {
 
     const rawAttrs = src.substring(Component.sourceCodeLocation.startCol - 1, Component.sourceCodeLocation.endCol - 1).match(/<[a-zA-Z]+(>|.*?[^?]>)/)?.[0].replace(/(?<=\<(\w.*))(\}(\s+|\t|\r|\n)\})/igm, "}}").match(/(?<=\<(\w.*))((\$.(\w*))|(\w*((\=(\".*?\"))|(\=(\{.*?(\}{1,}))))))/igm)?.map(e => ({
@@ -75,6 +87,16 @@ function createHTML(Component, arrayResult, src, result) {
 
     for (let x of utilitesClass) {
 
+        if(pureClass.has(x.nameBefore) && x.mediaQuery.length === 0){
+
+            x.nameAfter = pureClass.get(x.nameBefore);
+
+        }else if(x.mediaQuery.length === 0){
+
+            pureClass.set(x.nameBefore.replace(/(^\s|\s$)/igm,""),x.nameAfter);
+
+        }
+
         _result.source = _result.source.replace(x.nameBefore, x.nameAfter);
 
     }
@@ -102,7 +124,7 @@ function createHTML(Component, arrayResult, src, result) {
 
 }
 
-module.exports.transform = function(_source, isFirst, current) {
+module.exports.transform = async function(_source, isFirst, current) {
 
     let source = _source.replace(/(\n|\r|\t)/igm, "");
 
@@ -138,15 +160,20 @@ module.exports.transform = function(_source, isFirst, current) {
         css: ""
     };
 
-    const mediaSm = [],mediaMd = [],mediaLg = [];
+    const mediaSm = [],mediaMd = [],mediaLg = [],psuedoClass = [];
 
     for (let g of templateCopase.css) {
 
-        if(g.mediaQuery === "sm") mediaSm.push(g.template);
-        if(g.mediaQuery === "lg") mediaLg.push(g.template);
-        if(g.mediaQuery === "md") mediaMd.push(g.template);
-        if(g.mediaQuery.length === 0) resultCssAndHTML.css += g.template;
+        if(g.mediaQuery === "sm") mediaSm.push(g.template)
+        else if(g.mediaQuery === "lg") mediaLg.push(g.template)
+        else if(g.mediaQuery === "md") mediaMd.push(g.template)
+        else if(g.mediaQuery.length === 0 && !(resultCssAndHTML.css.match(g.nameAfter))) resultCssAndHTML.css += g.template
+        else if(g.mediaQuery.length !== 0){
 
+            g.updateTemplate(`${g.nameAfter.replace(/\s+/igm,"")}:${g.mediaQuery}`,g.value);
+            resultCssAndHTML.css += g.template
+            
+        }
     }
 
 
@@ -154,7 +181,7 @@ module.exports.transform = function(_source, isFirst, current) {
     (mediaMd.length > 0 ? `${mediaQueryTemplate["md"]}{${mediaMd.join("\n")}}` : "") +
     (mediaLg.length > 0 ? `${mediaQueryTemplate["lg"]}{${mediaLg.join("\n")}}` : "");
 
-    resultCssAndHTML.css = beauty(resultCssAndHTML.css);
+    resultCssAndHTML.css = beauty(await minifyCss(resultCssAndHTML.css));
 
     return resultCssAndHTML;
 }

@@ -53,11 +53,11 @@ for(let x of argv){
 // dan hasilnya akan di tulis di dalam folder result
 if (fs.existsSync(process.cwd() + "/source")) {
 
-    fs.readdirSync(process.cwd() + "/source").forEach(file => {
+    fs.readdirSync(process.cwd() + "/source").forEach(async file => {
 
         if (/\.html$/igm.test(file)) {
 
-            const copase = transform(fs.readFileSync(join(process.cwd(), "source", file)).toString());
+            const copase = await transform(fs.readFileSync(join(process.cwd(), "source", file)).toString());
 
             if (fs.existsSync(process.cwd() + "/result")) {
 

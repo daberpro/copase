@@ -1,22 +1,41 @@
 {
   "name": "copase",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "<center>\r     <h1 style=\"font-size: xxx-large;\">Copase</h1>\r     <h2>\"simpel but powerfull\"</h2>\r     <p>By Daberdev (fullstack web developer)</p>\r     <img src=\"https://img.shields.io/npm/v/copase.svg\">\r     <img src=\"https://img.shields.io/npm/dm/copase.svg\">\r </center>\r <br>\r kapan terakhir kali anda membuat css tanpa framework? atau kapan terakhir kali anda menggunakan framework css? kapan pun itu pasti anda selalu merasakan pro dan kontra dari pengalaman dalam mengerjakan ke dua nya tapi pernah kah terpikir bagaimana jika utility class seperti tailwind di gabungkan dengan css properti?",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "copase": "./compiler.js"
+    "copase": "compiler.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "daber",
+  "license": "Apache-2.0",
   "dependencies": {
+    "autoprefixer": "^10.4.4",
     "boxen": "^5.1.2",
     "chalk": "^4.1.1",
     "css-beauty": "^0.2.0",
+    "cssnano": "^5.1.7",
     "html-prettify": "^1.0.6",
-    "js-beautify": "^1.14.3",
-    "parse5": "^6.0.1"
-  }
+    "parse5": "^6.0.1",
+    "postcss": "^8.4.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daberpro/copase.git"
+  },
+  "keywords": [
+    "css",
+    "utility-class",
+    "css-utilities",
+    "copase",
+    "daber",
+    "daberdev",
+    "seleku-kit"
+  ],
+  "bugs": {
+    "url": "https://github.com/daberpro/copase/issues"
+  },
+  "homepage": "https://github.com/daberpro/copase#readme"
 }
