@@ -89,3 +89,139 @@ secara otomatis ketika di ukuran layar yang telah di tentukan color pada h1 akan
 
 ## Update 1.1.1
 ### update perbaikan bug untuk nama class
+
+## Update 1.2.0
+### apa yang baru?
+1. html component
+    > copase mendukung adanya pembuatan component html untuk dapat menggunakan fitur ini ada terlebih dahulu harus menginstall versi 1.2.0 
+
+    sebagai contoh penggunaan silahkan perhatikan instruksi di bawah ini
+    ```txt
+    |
+    |-- result
+    |-- source/
+    |   |
+    |   |---- index.html
+    |
+    |-- component/
+    |   |
+    |   |---- card.html
+    |
+    |-- package.json
+    |-- pacage-lock.json
+    |
+    |
+    ```
+    di atas merupakan struktur yang umumnya di gunakan pada copase CLI tapi jika anda perhatikan ada perbedaan yang cukup jelas dari versi - versi sebelumnya yaitu adanya folder component
+
+    nama untuk folder nya tidak mesti harus component apapun bisa, kemudian seperti apa component itu?
+
+    component hanyalah suatu tag HTML biasa yang akan di gabungkan sebagai contoh component bisa hanya berupa `div`, dan component tidak boleh memiliki tag `html`,`head`,`body` atau tag yang menjadi struktur dasar lainya
+
+    kemudian bagaimana cara untuk menggabungkan component? caranya sebagai berikut
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+      <link rel="stylesheet" href="a.css">
+    </head>
+    <body>
+      
+      <Card as="component/card.html"></Card>
+
+    </body>
+    </html>
+    ```
+
+    seperti yang anda lihat di atas kita memasukan suatu tag yang bukan merupakan tag HTML melainkan tag custom untuk nama tag nya anda bisa memasukan nama apapun yang penting nama tag nya bukan termasuk nama tag HTML
+
+    di dalam tag custom di atas terdapat suatu attribute `as="component/card.html"` yang merupakan attribute yang bertugas memberitahukan kepada compiler di mana lokasi file yang akan di gabungkan
+
+    anda juga bisa melakukan penyelipan data untuk mempermudah anda dengan mengambi data dari config 
+
+2. config
+    > karena fitur html component juga memiliki penyelipan data ke dalam nya untuk mendefinisikan data tersebut anda harus membuat file `copase.config.js` yang merupakan suatu kumpulan data data yang akan di embed ke dalam html component
+
+    untuk melihat isi configurasinya adalah sebagai berikut
+
+    ```js
+    module.exports = {
+        nama: "daberdev",
+        data: [
+            {
+                nama: "whoami",
+                emote: "😴"
+            },
+            {
+                nama: "daber",
+                emote: "😑"
+            }
+        ]
+    }
+    ```
+
+    kemudian pada component anda cukup menggunakan `${props.properti}` untuk meng-embed data ke dalam nya contoh
+
+    ```html
+    <div>
+    
+        <h1 class="color-[green]">${props.nama}</h1>   
+
+    </div>
+
+    ```
+
+    maka hasilnya adalah
+    
+    ```html
+    <div>
+      <h1 class="color-24095081-1500 ">daberdev</h1>
+    </div>
+    ```
+
+    dan anda juga di mungkinkn untuk melakukan perulangan pada component semisal jika data yang anda masukan berbentuk array untuk pengunaan nya adalah sebagai berikut
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+      <link rel="stylesheet" href="a.css">
+    </head>
+    <body>
+      
+      <Card as="component/card.html" each="data"></card>
+
+    </body>
+    </html>
+    ```
+
+    seperti yang anda lihat di dalam custom tag nya terdapat suatu attribute yaitu each yang merupakan tempat anda memasukan data apa yang akan di looping di ambil dari `copase.config.js`
+
+    dan di dalam component untuk mengambil data anda cukup melakukan nya sebagai berikut
+
+    ```html
+    <div>
+    
+        <h1 class="color-[green]">${each.nama} ${each.emote}</h1>   
+
+    </div>
+
+    ```
+
+    dan hasilnya
+
+    ```html
+    <div>
+      <h1 class="color-24095081-1500 ">whoami 😴</h1>
+    </div>
+    <div>
+      <h1 class="color-24095081-1500 ">daber 😑</h1>
+    </div>
+    ```
