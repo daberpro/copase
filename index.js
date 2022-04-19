@@ -18,7 +18,13 @@ const {
 
 // membuat fungsi compile yang di exports
 // agar user bisa menggunakan copase melalui node js dengan file
-module.exports = function(args = {sourceDir : "", outDir : ""}) {
+/**
+ * @description melakukan compile dan transofrmasi sebagai module
+ * 
+ * @param {{SourceDir,outDir,config}} args 
+ * @returns 
+ */
+module.exports = function(args = {sourceDir : "", outDir : "", config: {}}) {
 
     const result = {};
 
@@ -29,7 +35,7 @@ module.exports = function(args = {sourceDir : "", outDir : ""}) {
             // mengambil setiap file html 
             if (/\.html$/igm.test(file)) {
 
-                const copase = await transform(fs.readFileSync(join(args.sourceDir, file)).toString());
+                const copase = await transform(fs.readFileSync(join(args.sourceDir, file)).toString(),config);
                 result[file] = copase;
 
                 if (fs.existsSync(args.outDir)) {

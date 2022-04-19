@@ -17,19 +17,22 @@ const crypto = require("crypto");
 const CodecError = require('./utils/error');
 const prettify = require('html-prettify');
 const copase = require("./utils/copase.js");
-const {beauty} = require('css-beauty');
+const { beauty } = require('css-beauty');
 const postcss = require('postcss');
 const cssnano = require('cssnano');
 const autoprefixer = require('autoprefixer');
-const {join} = require("path");
+const { join } = require("path");
 
 
+/**
+ * @description melakukan minify terhadap css
+ */
 const minifyCss = async (css) => {
 
-  const output = await postcss([cssnano, autoprefixer])
-    .process(css)
+    const output = await postcss([cssnano, autoprefixer])
+        .process(css)
 
-  return output.css;
+    return output.css;
 }
 
 const HTMLElementTag = { "a": "a", "abbr": "abbr", "acronym": "acronym", "address": "address", "applet": "applet", "area": "area", "article": "article", "aside": "aside", "audio": "audio", "b": "b", "base": "base", "basefont": "basefont", "bdi": "bdi", "bdo": "bdo", "bgsound": "bgsound", "big": "big", "blink": "blink", "blockquote": "blockquote", "body": "body", "br": "br", "button": "button", "canvas": "canvas", "caption": "caption", "center": "center", "cite": "cite", "code": "code", "col": "col", "colgroup": "colgroup", "content": "content", "data": "data", "datalist": "datalist", "dd": "dd", "decorator": "decorator", "del": "del", "details": "details", "dfn": "dfn", "dir": "dir", "div": "div", "dl": "dl", "dt": "dt", "element": "element", "em": "em", "embed": "embed", "fieldset": "fieldset", "figcaption": "figcaption", "figure": "figure", "font": "font", "footer": "footer", "form": "form", "frame": "frame", "frameset": "frameset", "h1": "h1", "h2": "h2", "h3": "h3", "h4": "h4", "h5": "h5", "h6": "h6", "head": "head", "header": "header", "hgroup": "hgroup", "hr": "hr", "html": "html", "i": "i", "iframe": "iframe", "img": "img", "input": "input", "ins": "ins", "isindex": "isindex", "kbd": "kbd", "keygen": "keygen", "label": "label", "legend": "legend", "li": "li", "link": "link", "listing": "listing", "main": "main", "map": "map", "mark": "mark", "marquee": "marquee", "menu": "menu", "menuitem": "menuitem", "meta": "meta", "meter": "meter", "nav": "nav", "nobr": "nobr", "noframes": "noframes", "noscript": "noscript", "object": "object", "ol": "ol", "optgroup": "optgroup", "option": "option", "output": "output", "p": "p", "param": "param", "plaintext": "plaintext", "pre": "pre", "progress": "progress", "q": "q", "rp": "rp", "rt": "rt", "ruby": "ruby", "s": "s", "samp": "samp", "script": "script", "section": "section", "select": "select", "shadow": "shadow", "small": "small", "source": "source", "spacer": "spacer", "span": "span", "strike": "strike", "strong": "strong", "style": "style", "sub": "sub", "summary": "summary", "sup": "sup", "table": "table", "tbody": "tbody", "td": "td", "template": "template", "textarea": "textarea", "tfoot": "tfoot", "th": "th", "thead": "thead", "time": "time", "title": "title", "tr": "tr", "track": "track", "tt": "tt", "u": "u", "ul": "ul", "var": "var", "video": "video", "wbr": "wbr", "xmp": "xmp" }
@@ -41,7 +44,14 @@ function uuidv4() {
     );
 }
 
-// import component
+/**
+ * @description melakukan include terhadap component
+ * 
+ * @param {parse5 HTMLComponent} Component 
+ * @param {String} src 
+ * @param {String} result 
+ * @param {Object} props 
+ */
 function copyComponentToSource(Component, src, result, props) {
 
     const rawAttrs = src.substring(Component.sourceCodeLocation.startCol - 1, Component.sourceCodeLocation.endCol - 1).match(/<[a-zA-Z]+(>|.*?[^?]>)/)?.[0].replace(/(?<=\<(\w.*))(\}(\s+|\t|\r|\n)\})/igm, "}}").match(/(?<=\<(\w.*))((\$.(\w*))|(\w*((\=(\".*?\"))|(\=(\{.*?(\}{1,}))))))/igm)?.map(e => ({
@@ -49,54 +59,54 @@ function copyComponentToSource(Component, src, result, props) {
     })) || [];
 
     const tagName = src.substring(Component.sourceCodeLocation.startCol, Component.sourceCodeLocation.startCol + Component.tagName.length);
-    
-    if(!HTMLElementTag.hasOwnProperty(tagName)){
+
+    if (!HTMLElementTag.hasOwnProperty(tagName)) {
 
         let component = null;
         let source = result.source;
 
-        for(let g of rawAttrs){
+        for (let g of rawAttrs) {
 
-            if(g.as?.replace(/(\s|\t|\r)/igm,"")){
+            if (g.as?.replace(/(\s|\t|\r)/igm, "")) {
 
-                component = `\`${fs.readFileSync(join(__dirname,g.as.replace(/\"/igm,""))).toString("utf-8")}\``;
+                component = `\`${fs.readFileSync(join(__dirname, g.as.replace(/\"/igm, ""))).toString("utf-8")}\``;
 
-                try{
+                try {
 
                     source = result.source.replace(
-                        src.substring(Component.sourceCodeLocation.startCol-1, Component.sourceCodeLocation.endCol-1),
+                        src.substring(Component.sourceCodeLocation.startCol - 1, Component.sourceCodeLocation.endCol - 1),
                         eval(component)
                     );
 
-                }catch(err){
+                } catch (err) {
 
                     source = result.source;
 
                 }
 
             }
-            else if(g.each?.replace(/(\s|\t|\r)/igm,"")){
+            else if (g.each?.replace(/(\s|\t|\r)/igm, "")) {
 
-                const _data = g.each?.replace(/(\s|\t|\r|\")/igm,"");
+                const _data = g.each?.replace(/(\s|\t|\r|\")/igm, "");
                 const components = [];
-                
-                if(props[_data] instanceof Object){
 
-                    for(let index in props[_data]){
+                if (props[_data] instanceof Object) {
+
+                    for (let index in props[_data]) {
 
                         const each = {
-                            value : props[_data][index],
+                            value: props[_data][index],
                             index
                         }
-                        
+
                         components.push(eval(component));
 
                     }
 
                 }
-                
+
                 source = result.source.replace(
-                    src.substring(Component.sourceCodeLocation.startCol-1, Component.sourceCodeLocation.endCol-1),
+                    src.substring(Component.sourceCodeLocation.startCol - 1, Component.sourceCodeLocation.endCol - 1),
                     components.join("\n")
                 );
 
@@ -118,6 +128,16 @@ let mediaQueryTemplate = {
 
 // mengambil dan mengcopy source code html dan melakukan manipulasi
 // yaitu dengan cara mengubah class utilities menjadi class yang telah di generate
+/**
+ * @description membuat utility class dalam bentuk setengah jadi
+ * 
+ * @param {Parse5 HTMLComponent} Component 
+ * @param {Array} arrayResult 
+ * @param {String} src 
+ * @param {String} result 
+ * @param {Map} pureClass 
+ * @returns 
+ */
 function createHTML(Component, arrayResult, src, result, pureClass) {
 
     const rawAttrs = src.substring(Component.sourceCodeLocation.startCol - 1, Component.sourceCodeLocation.endCol - 1).match(/<[a-zA-Z]+(>|.*?[^?]>)/)?.[0].replace(/(?<=\<(\w.*))(\}(\s+|\t|\r|\n)\})/igm, "}}").match(/(?<=\<(\w.*))((\$.(\w*))|(\w*((\=(\".*?\"))|(\=(\{.*?(\}{1,}))))))/igm)?.map(e => ({
@@ -133,17 +153,17 @@ function createHTML(Component, arrayResult, src, result, pureClass) {
 
         const classField = {};
 
-        if(x.class) for (let y of (x.class?.replace(/\[.*?\]\s+/igm,"$&=>").split("=>") || [])) {
+        if (x.class) for (let y of (x.class?.replace(/\[.*?\]\s+/igm, "$&=>").split("=>") || [])) {
 
-            const resultCopase = copase.checkValue(copase.splitValue(y.replace(/(\n|\r|\t)/igm,"")));
+            const resultCopase = copase.checkValue(copase.splitValue(y.replace(/(\n|\r|\t)/igm, "")));
 
-            if(!classField.hasOwnProperty(resultCopase.parentName)){
+            if (!classField.hasOwnProperty(resultCopase.parentName)) {
 
-                classField[resultCopase.parentName] = resultCopase.nameAfter;               
+                classField[resultCopase.parentName] = resultCopase.nameAfter;
 
-            }else{
+            } else {
 
-                resultCopase.updateTemplate(classField[resultCopase.parentName],resultCopase.value);
+                resultCopase.updateTemplate(classField[resultCopase.parentName], resultCopase.value);
 
             }
 
@@ -158,17 +178,17 @@ function createHTML(Component, arrayResult, src, result, pureClass) {
 
     for (let x of utilitesClass) {
 
-        if(pureClass.has(x.nameBefore.replace(/(\s+)/igm,"")) && x.mediaQuery.length === 0){
+        if (pureClass.has(x.nameBefore.replace(/(\s+)/igm, "")) && x.mediaQuery.length === 0) {
 
-            x.nameAfter = pureClass.get(x.nameBefore.replace(/(\s+)/igm,""));
+            x.nameAfter = pureClass.get(x.nameBefore.replace(/(\s+)/igm, ""));
 
-        }else if(x.mediaQuery.length === 0){
+        } else if (x.mediaQuery.length === 0) {
 
-            pureClass.set(x.nameBefore.replace(/(\s+)/igm,""),x.nameAfter);
+            pureClass.set(x.nameBefore.replace(/(\s+)/igm, ""), x.nameAfter);
 
         }
 
-        _result.source = _result.source.replace(x.nameBefore,x.nameAfter+" ");
+        _result.source = _result.source.replace(x.nameBefore, x.nameAfter + " ");
 
     }
 
@@ -177,11 +197,11 @@ function createHTML(Component, arrayResult, src, result, pureClass) {
         utilitesClass,
     });
 
-    if (Component.childNodes.length > 0){
+    if (Component.childNodes.length > 0) {
 
         for (let x of Component.childNodes) {
 
-            if (x.nodeName !== "#text"){
+            if (x.nodeName !== "#text") {
 
                 createHTML(x, arrayResult, src, _result, pureClass);
 
@@ -190,12 +210,20 @@ function createHTML(Component, arrayResult, src, result, pureClass) {
         }
 
     }
-     
+
     return arrayResult;
 
 }
 
-module.exports.transform = async function(_source, props = {}) {
+/**
+ * 
+ * @description transformasi sumber source code dan emlakukan generate
+ * 
+ * @param {SourceFile} _source 
+ * @param {Object} props 
+ * @returns 
+ */
+module.exports.transform = async function (_source, props = {}) {
 
     let source = _source.replace(/(\n|\r|\t)/igm, "");
 
@@ -214,10 +242,10 @@ module.exports.transform = async function(_source, props = {}) {
 
     let pureClass = new Map();
 
-    for(let s of data){
+    for (let s of data) {
 
-        copyComponentToSource(s,source,templateBefore,props);
-    
+        copyComponentToSource(s, source, templateBefore, props);
+
     }
 
     source = templateBefore.source = templateBefore.source.replace(/(\n|\r|\t)/igm, "");
@@ -245,26 +273,26 @@ module.exports.transform = async function(_source, props = {}) {
         css: ""
     };
 
-    const mediaSm = [],mediaMd = [],mediaLg = [],psuedoClass = [];
+    const mediaSm = [], mediaMd = [], mediaLg = [], psuedoClass = [];
 
     for (let g of templateCopase.css) {
 
-        if(g.mediaQuery === "sm") mediaSm.push(g.template)
-        else if(g.mediaQuery === "lg") mediaLg.push(g.template)
-        else if(g.mediaQuery === "md") mediaMd.push(g.template)
-        else if(g.mediaQuery.length === 0 && !(resultCssAndHTML.css.match(g.nameAfter))) resultCssAndHTML.css += g.template
-        else if(g.mediaQuery.length !== 0 && !(resultCssAndHTML.css.match(g.template))){
+        if (g.mediaQuery === "sm") mediaSm.push(g.template)
+        else if (g.mediaQuery === "lg") mediaLg.push(g.template)
+        else if (g.mediaQuery === "md") mediaMd.push(g.template)
+        else if (g.mediaQuery.length === 0 && !(resultCssAndHTML.css.match(g.nameAfter))) resultCssAndHTML.css += g.template
+        else if (g.mediaQuery.length !== 0 && !(resultCssAndHTML.css.match(g.template))) {
 
-            g.updateTemplate(`${g.nameAfter.replace(/\s+/igm,"")}:${g.mediaQuery}`,g.value);
+            g.updateTemplate(`${g.nameAfter.replace(/\s+/igm, "")}:${g.mediaQuery}`, g.value);
             resultCssAndHTML.css += g.template
-            
+
         }
     }
 
 
     resultCssAndHTML.css += (mediaSm.length > 0 ? `${mediaQueryTemplate["sm"]}{${mediaSm.join("\n")}}` : "") +
-    (mediaMd.length > 0 ? `${mediaQueryTemplate["md"]}{${mediaMd.join("\n")}}` : "") +
-    (mediaLg.length > 0 ? `${mediaQueryTemplate["lg"]}{${mediaLg.join("\n")}}` : "");
+        (mediaMd.length > 0 ? `${mediaQueryTemplate["md"]}{${mediaMd.join("\n")}}` : "") +
+        (mediaLg.length > 0 ? `${mediaQueryTemplate["lg"]}{${mediaLg.join("\n")}}` : "");
 
     resultCssAndHTML.css = beauty(await minifyCss(resultCssAndHTML.css));
 
