@@ -69,7 +69,7 @@ function copyComponentToSource(Component, src, result, props) {
 
             if (g.as?.replace(/(\s|\t|\r)/igm, "")) {
 
-                component = `\`${fs.readFileSync(join(__dirname, g.as.replace(/\"/igm, ""))).toString("utf-8")}\``;
+                component = `\`${fs.readFileSync(join(process.cwd(), g.as.replace(/\"/igm, ""))).toString("utf-8")}\``;
 
                 try {
 
@@ -117,6 +117,20 @@ function copyComponentToSource(Component, src, result, props) {
         result.source = source;
 
     }
+
+    if (Component.childNodes.length > 0) {
+
+        for (let x of Component.childNodes) {
+
+            if (x.nodeName !== "#text") {
+
+               copyComponentToSource(x,src,result,props);
+
+            }
+
+        }
+
+    }
 }
 
 // melakukan set terhadap responsive 
@@ -152,10 +166,11 @@ function createHTML(Component, arrayResult, src, result, pureClass) {
     for (let x of rawAttrs) {
 
         const classField = {};
+        const uuid = uuidv4();
 
         if (x.class) for (let y of (x.class?.replace(/\[.*?\]\s+/igm, "$&=>").split("=>") || [])) {
 
-            const resultCopase = copase.checkValue(copase.splitValue(y.replace(/(\n|\r|\t)/igm, "")));
+            const resultCopase = copase.checkValue(copase.splitValue(y.replace(/(\n|\r|\t)/igm, "")),uuid);
 
             if (!classField.hasOwnProperty(resultCopase.parentName)) {
 
@@ -175,6 +190,7 @@ function createHTML(Component, arrayResult, src, result, pureClass) {
 
 
     let _result = result;
+    const mediaQuery = ["sm","md","lg"];
 
     for (let x of utilitesClass) {
 
@@ -188,7 +204,8 @@ function createHTML(Component, arrayResult, src, result, pureClass) {
 
         }
 
-        _result.source = _result.source.replace(x.nameBefore, x.nameAfter + " ");
+        if(mediaQuery.indexOf(x.mediaQuery) === -1 && x.mediaQuery.length !== 0) _result.source = _result.source.replace(x.nameBefore,x.uuid+" ")
+        else _result.source = _result.source.replace(x.nameBefore, x.nameAfter + " ");
 
     }
 
@@ -267,26 +284,105 @@ module.exports.transform = async function (_source, props = {}) {
 
     }
 
-
     let resultCssAndHTML = {
-        html: prettify(templateCopase.html.replace(/\<.*?\>/igm, "\n$&")),
+        html: templateCopase.html,
         css: ""
     };
 
     const mediaSm = [], mediaMd = [], mediaLg = [], psuedoClass = [];
+    const stackOfPsuedoTemplate = new Map();
+    const stackOfPsuedoClass = new Map();
+
 
     for (let g of templateCopase.css) {
 
-        if (g.mediaQuery === "sm") mediaSm.push(g.template)
-        else if (g.mediaQuery === "lg") mediaLg.push(g.template)
-        else if (g.mediaQuery === "md") mediaMd.push(g.template)
-        else if (g.mediaQuery.length === 0 && !(resultCssAndHTML.css.match(g.nameAfter))) resultCssAndHTML.css += g.template
-        else if (g.mediaQuery.length !== 0 && !(resultCssAndHTML.css.match(g.template))) {
+        if (g.mediaQuery === "sm"){
 
-            g.updateTemplate(`${g.nameAfter.replace(/\s+/igm, "")}:${g.mediaQuery}`, g.value);
+            mediaSm.push(g.template)
+        
+        }else if (g.mediaQuery === "lg") {
+
+            mediaLg.push(g.template)
+        
+        }else if (g.mediaQuery === "md") {
+
+            mediaMd.push(g.template)
+        
+        }else if (g.mediaQuery.length === 0 && !(resultCssAndHTML.css.match(g.nameAfter))){
+
             resultCssAndHTML.css += g.template
 
+        }else if (g.mediaQuery.length !== 0) {
+
+            if(stackOfPsuedoTemplate.get(g.uuid)){
+
+                if(stackOfPsuedoTemplate.get(g.uuid).indexOf(`[${g.mediaQuery}] ${g.property}:${g.value.replace(/(\[|\])/igm,"")}`) === -1){
+
+                    if(stackOfPsuedoTemplate.get(g.uuid).length === 0){
+
+                        stackOfPsuedoTemplate.get(g.uuid).push(`[${g.mediaQuery}][${g.nameAfter}] ${g.property}:${g.value.replace(/(\[|\])/igm,"")}`)
+                        stackOfPsuedoClass.get(g.uuid).push({
+                            isFirst: true,
+                            psuedo: g.mediaQuery,
+                            property: `${g.property}:${g.value.replace(/(\[|\])/igm,"")}`
+                        });
+
+                    }else {
+
+                        stackOfPsuedoTemplate.get(g.uuid).push(`[${g.mediaQuery}] ${g.property}:${g.value.replace(/(\[|\])/igm,"")}`);
+                        stackOfPsuedoClass.get(g.uuid).push({
+                            isFirst: false,
+                            psuedo: g.mediaQuery,
+                            uuid: g.uuid,
+                            property: `${g.property}:${g.value.replace(/(\[|\])/igm,"")}`
+                        });
+
+                    }
+                }
+            }else{
+
+                stackOfPsuedoTemplate.set(g.uuid,[]);
+                stackOfPsuedoClass.set(g.uuid,[]);
+
+            }
+
         }
+    }
+
+
+    for(let x of stackOfPsuedoClass){
+
+        const template = {};
+        const uid = {};
+
+        for(let y of x[1]){
+
+            if(template.hasOwnProperty(y.psuedo)){
+
+                template[y.psuedo].push(y.property+";");
+
+            }else{
+
+                template[y.psuedo] = [y.property+";"];
+
+            }
+
+
+            uid[y.psuedo] = y.uuid;
+
+        }
+
+        for(let g in template){
+            
+            resultCssAndHTML.html = resultCssAndHTML.html
+            .replace(new RegExp(`(${uid[g]}).*(${uid[g]})`,"igm"),`g${uid[g]}`);
+            
+            resultCssAndHTML.css += `.g${uid[g]}:${g}{
+                ${template[g].join("\n")}
+            } `;
+
+        }
+
     }
 
 
@@ -294,7 +390,8 @@ module.exports.transform = async function (_source, props = {}) {
         (mediaMd.length > 0 ? `${mediaQueryTemplate["md"]}{${mediaMd.join("\n")}}` : "") +
         (mediaLg.length > 0 ? `${mediaQueryTemplate["lg"]}{${mediaLg.join("\n")}}` : "");
 
-    resultCssAndHTML.css = beauty(await minifyCss(resultCssAndHTML.css));
+    resultCssAndHTML.css = beauty(await minifyCss(resultCssAndHTML.css.replace(/(\n|\t|\r)/igm,"")));
+    resultCssAndHTML.html = prettify(resultCssAndHTML.html.replace(/\<.*?\>/igm,"\n$&"))
 
     return resultCssAndHTML;
 }
